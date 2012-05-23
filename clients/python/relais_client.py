@@ -68,7 +68,7 @@ class RelaisClient(object):
 
 
     def getPort(self, port):
-        return self.sendCOmmand( '/ports/%d' % port, self.get )
+        return self.sendCommand( '/ports/%d' % port, self.get )
 
 
     def getPorts(self):
