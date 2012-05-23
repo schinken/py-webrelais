@@ -9,9 +9,9 @@ parallel port.
 
 * GET / Shows a page to control the LED Board
 
-* POST /relais/[0-7]? Set a portbin
-* GET /relais/[0-7]? Get the state of a specific relais
-* DELETE /relais/[0-7]? Set relais to off
+* POST /ports/[0-7]? Set a relai
+* GET /ports/[0-7]? Get the state of a specific relais
+* DELETE /ports/[0-7]? Set relais to off
 
 If no number is given, it will return/set/reset all relais
 
