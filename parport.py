@@ -13,15 +13,14 @@ class Parport(object):
 
     def setPin(self, pin, value=1):
 
-        if value:
-            value = 0x01
-        else:
-            value = 0x00
-
         if pin > 7 or pin < 0:
             raise Exception('PortPin is out of range')
 
-        self.data |= ( value << pin )
+        if value:
+            self.data |= ( 0x01 << pin )
+        else:
+            self.data &= ~( value << pin )
+
         self.setPort()
 
     def setPins(self):
