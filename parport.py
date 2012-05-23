@@ -21,12 +21,22 @@ class Parport(object):
         if pin > 7 or pin < 0:
             raise Exception('PortPin is out of range')
 
-        self.data ^= ( value << pin )
+        self.data |= ( value << pin )
         self.setPort()
 
     def setPins(self):
+
         self.data = 0xFF
         self.setPort()
+
+    def togglePin(self, pin ):
+
+        val = self.getPin( pin )
+
+        if val:
+            self.setPin( pin, 0 )
+        else:
+            self.setPin( pin, 1 )
 
     def getPin(self, pin):
 
