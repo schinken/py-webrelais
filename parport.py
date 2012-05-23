@@ -19,7 +19,7 @@ class Parport(object):
         if value:
             self.data |= ( 0x01 << pin )
         else:
-            self.data &= ~( value << pin )
+            self.data &= ~( 0x01 << pin )
 
         self.setPort()
 
