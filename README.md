@@ -7,7 +7,7 @@ parallel port.
 
 ## Basic Usage
 
-* GET / Shows a page to control the LED Board
+* GET / Shows a page to control the relais card
 
 * POST /ports/[0-7]? Set a relai
 * GET /ports/[0-7]? Get the state of a specific relais
