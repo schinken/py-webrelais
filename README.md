@@ -20,3 +20,16 @@ If no number is given, it will return/set/reset all relais
 
 * flask
 * pyparallel
+
+## Installation
+
+    sudo apt-get install python-parallel python-flask
+
+You need to do this to get the parallel library to work:
+
+    sudo rmmod lp
+    sudo modprobe ppdev
+
+Add your user to the lp group or change the permissions on /dev/parport0
+
+Now everything should work fine
