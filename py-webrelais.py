@@ -1,8 +1,7 @@
 __author__ = 'schinken'
 
-import json
 from parport import Parport
-from flask import Flask
+from flask import Flask, render_template,jsonify
 
 app = Flask(__name__)
 
@@ -10,19 +9,19 @@ pp = Parport()
 
 @app.route("/")
 def page_main():
-    return "hai"
+    return render_template('index.html')
 
 
 @app.route("/ports", methods=["GET"])
 def get_ports():
-    return json.dumps( pp.getPins() )
+    return jsonify( response=pp.getPins() )
 
 
 @app.route("/ports/<int:number>", methods=["GET"])
 def get_port(number):
 
     try:
-        return json.dumps( pp.getPin( number ) )
+        return jsonify( response=pp.getPin( number ) )
     except Exception:
         return Exception.message, 404
 
@@ -30,7 +29,7 @@ def get_port(number):
 @app.route("/ports", methods=["POST"])
 def set_ports():
     pp.setPins()
-    return json.dumps( True )
+    return jsonify( response=True )
 
 
 @app.route("/ports/<int:number>", methods=["POST"])
@@ -38,7 +37,7 @@ def set_port(number):
 
     try:
         pp.setPin( number )
-        return json.dumps( True )
+        return jsonify( response=True )
     except Exception:
         return Exception.message, 404
 
@@ -46,14 +45,14 @@ def set_port(number):
 @app.route("/ports", methods=["DELETE"])
 def reset_ports():
     pp.resetPins()
-    return json.dumps( True )
+    return jsonify( response=True )
 
 
 @app.route("/ports/<int:number>", methods=["DELETE"])
 def reset_port(number):
     try:
         pp.resetPin( number )
-        return json.dumps( True )
+        return jsonify( response=True )
     except Exception:
         return Exception.message, 404
 
