@@ -19,4 +19,4 @@ If no number is given, it will return/set/reset all relais
 ## Dependencies
 
 * flask
-* portio
+* pyparallel
