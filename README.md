@@ -2,8 +2,9 @@
 
 ## What it does
 
-py-webrelais offers a REST-API to control the K8IO Relais-Card, connected to the
+py-webrelais offers a REST-API to control the [1] K8IO Relais-Card from Pollin, connected to the
 parallel port.
+Its developed explicitly for Linux, but should run on Windows, too (not tested)
 
 ## Basic Usage
 
@@ -33,3 +34,5 @@ You need to do this to get the parallel library to work:
 Add your user to the lp group or change the permissions on /dev/parport0
 
 Now everything should work fine
+
+[1] http://www.pollin.de/shop/dt/NzcyOTgyOTk-/Bausaetze_Module/Bausaetze/Bausatz_PC_Relaiskarte_K8IO.html
