@@ -64,6 +64,9 @@ def output_data( data ):
         return jsonify( response=data )
     elif format == 'raw':
 
+        if type(data) != list:
+            data = [data]
+
         str = ''
         for d in data:
             if d:
