@@ -3,9 +3,9 @@ module Relais where
 import Network.HTTP
 import Network.URI (parseURI)
 
-sendCommand method url path = simpleHTTP req >>= getResponseBody >>= return . decode . lines
+sendCommand method url path = simpleHTTP req >>= getResponseBody >>= return . sequence . decode
   where
-    urlString = url ++ path
+    urlString = url ++ path ++ "?format=raw"
     req = case parseURI urlString of
             Nothing -> error ("sendCommand: Not a valid URL - " ++ urlString)
             Just u  -> mkRequest method u
@@ -29,13 +29,8 @@ getPorts url = sendCommand GET url "/ports"
 
 
 -- Haskell's JSON library is overkill for this, so I implemented my own decode function
-decode x@(x1:x2:xs)
-    | x1 == "{" = sequence $ if last x2 == '['
-                              then map (decode' . getBoolString) (init $ init xs)
-                              else [decode' $ drop 2 $ dropWhile (/= ':') x2]
-    | otherwise = Left $ "decode: Invalid response:\n" ++ (unlines x)
-  where
-    getBoolString   = takeWhile (/= ',') . dropWhile (==' ')
-    decode' "false" = Right False
-    decode' "true"  = Right True
-    decode' wrong   = Left $ "decode': Not a boolean: " ++ wrong
+decode [] = []
+decode (x:xs)
+    | x == '0' = Right False : decode xs
+    | x == '1' = Right True : decode xs
+    | otherwise = [Left $ "decode: Invalid response: " ++ [x]]
