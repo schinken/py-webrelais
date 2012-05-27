@@ -12,12 +12,12 @@ sendCommand method url path = simpleHTTP req >>= getResponseBody >>= return . se
 
 
 setPort url port val = if val
-                     then sendCommand POST url $ "/ports/" ++ port
-                     else resetPort url port
+                        then sendCommand POST url $ "/ports/" ++ port
+                        else resetPort url port
 
 setPorts url val = if val
-                then sendCommand POST url "/ports"
-                else resetPorts url
+                    then sendCommand POST url "/ports"
+                    else resetPorts url
 
 resetPort url port = sendCommand DELETE url $ "/ports/" ++ port
 
@@ -28,9 +28,8 @@ getPort url port = sendCommand GET url $ "/ports/" ++ port
 getPorts url = sendCommand GET url "/ports"
 
 
--- Haskell's JSON library is overkill for this, so I implemented my own decode function
-decode [] = []
-decode (x:xs)
-    | x == '0' = Right False : decode xs
-    | x == '1' = Right True : decode xs
-    | otherwise = [Left $ "decode: Invalid response: " ++ [x]]
+decode = map (decode')
+  where
+    decode' '0' = Right False
+    decode' '1' = Right True
+    decode'  x  = Left $ "decode: Invalid response: " ++ [x]
