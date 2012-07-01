@@ -1,35 +1,35 @@
+-- Usage: sendCommand "http://localhost:5000" (Req (Just '5') (Set True))
+-- Req Nothing Get to get the state of all ports
+-- Will return a Right with a list of Bools inside on success or a Left errormessage on failure
+
 module Relais where
+
 
 import Network.HTTP
 import Network.URI (parseURI)
 
-sendCommand method url path = simpleHTTP req >>= getResponseBody >>= return . sequence . decode
+
+data Action = Set Bool | Get deriving (Show,Eq)
+data Req = Req { port :: Maybe Char, action :: Action } deriving (Show, Eq)
+
+
+sendCommand :: String -> Req -> IO (Either String [Bool])
+sendCommand url (Req p a) = simpleHTTP req >>= getResponseBody >>= return . decode
   where
-    urlString = url ++ path ++ "?format=raw"
+    urlString = url ++ "/ports" ++ port ++ "?format=raw"
+    port = maybe "" (('/':) . (:[])) p
+    method = case a of
+              Get       -> GET
+              Set True  -> POST
+              Set False -> DELETE
     req = case parseURI urlString of
-            Nothing -> error ("sendCommand: Not a valid URL - " ++ urlString)
+            Nothing -> error ("sendCommand: Invalid URL: " ++ urlString)
             Just u  -> mkRequest method u
 
 
-setPort url port val = if val
-                        then sendCommand POST url $ "/ports/" ++ port
-                        else resetPort url port
-
-setPorts url val = if val
-                    then sendCommand POST url "/ports"
-                    else resetPorts url
-
-resetPort url port = sendCommand DELETE url $ "/ports/" ++ port
-
-resetPorts url = sendCommand DELETE url "/ports"
-
-getPort url port = sendCommand GET url $ "/ports/" ++ port
-
-getPorts url = sendCommand GET url "/ports"
-
-
-decode = map (decode')
+decode xs = if all (\x -> x == '1' || x == '0') xs
+              then Right $ map decode' xs
+              else Left $ "decode: Invalid repsonse: " ++ xs
   where
-    decode' '0' = Right False
-    decode' '1' = Right True
-    decode'  x  = Left $ "decode: Invalid response: " ++ [x]
+    decode' '0' = False
+    decode' '1' = True
