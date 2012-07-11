@@ -8,7 +8,7 @@ class Parport(object):
     data = 0x00
 
     def __init__(self):
-#        self.conn = parallel.Parallel()
+        self.conn = parallel.Parallel()
         self.setPort()
 
     def setPin(self, pin=None, value=1):
@@ -71,5 +71,4 @@ class Parport(object):
         self.setPort()
 
     def setPort(self):
-#        self.conn.setData( self.data )
-        pass
+        self.conn.setData( self.data )
