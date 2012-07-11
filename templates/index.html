@@ -10,7 +10,7 @@
             $(function() {
 
                 function update_relais() {
-                    $.get('/ports', function(ports) {
+                    $.get('/relais', function(ports) {
                         $.each( ports.response, function(k,v) {
                             setRelais( k, v );
                         });
@@ -39,7 +39,7 @@
                         method = 'POST';
                     }
 
-                    $.ajax('/ports/'+port, {
+                    $.ajax('/relais/'+port, {
                         complete: function() {
                             update_relais();
 

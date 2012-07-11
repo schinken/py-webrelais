@@ -8,10 +8,16 @@ class Parport(object):
     data = 0x00
 
     def __init__(self):
-        self.conn = parallel.Parallel()
+#        self.conn = parallel.Parallel()
         self.setPort()
 
-    def setPin(self, pin, value=1):
+    def setPin(self, pin=None, value=1):
+
+        if pin is None:
+            if value:
+                return self.setPins()
+            else:
+                return self.resetPins()
 
         if pin > 7 or pin < 0:
             raise Exception('PortPin is out of range')
@@ -37,7 +43,9 @@ class Parport(object):
         else:
             self.setPin( pin, 1 )
 
-    def getPin(self, pin):
+    def getPin(self, pin=None):
+        if pin is None:
+            return self.getPins()
 
         if self.data & ( 0x01 << pin ):
             return True
@@ -52,7 +60,10 @@ class Parport(object):
 
         return pins
 
-    def resetPin(self, pin):
+    def resetPin(self, pin=None):
+        if pin is None:
+            return self.resetPins()
+
         self.setPin(pin, 0)
 
     def resetPins(self):
@@ -60,4 +71,5 @@ class Parport(object):
         self.setPort()
 
     def setPort(self):
-        self.conn.setData( self.data )
+#        self.conn.setData( self.data )
+        pass
