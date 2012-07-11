@@ -1,6 +1,6 @@
 
 # host is optional
-door_credentials = {'user': 'username', 'pass': 'password', 'host': '127.0.0.2' }
+door_credentials = {'user': 'username', 'pass': 'password', 'host': '127.0.0.1' }
 
 port_permissions = {}
 
