@@ -20,8 +20,6 @@ def check_permissions(fn):
         port = kwargs['port']
         auth = request.authorization
 
-        print request.remote_addr
-
         # check if there are special port credentials, and if
         # validate them
         if not port in port_permissions:
