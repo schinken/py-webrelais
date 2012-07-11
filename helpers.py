@@ -25,12 +25,10 @@ def check_permissions(fn):
         if not port in port_permissions:
             return fn(*args, **kwargs)
 
-        cred = port_permissions[port]
-        if auth and cred['user'] == auth.username and cred['pass'] == auth.password:
-            if ('host' in cred and cred['host'] == request.remote_addr) or 'host' not in cred:
-                return fn(*args, **kwargs)
-            else:
-                return auth_required()
+        for cred in port_permissions[port]:
+            if auth and cred['user'] == auth.username and cred['pass'] == auth.password:
+                if ('host' in cred and cred['host'] == request.remote_addr) or 'host' not in cred:
+                    return fn(*args, **kwargs)
         
         return auth_required()
 
