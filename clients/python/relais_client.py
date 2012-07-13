@@ -1,6 +1,7 @@
 __author__ = 'schinken'
 
 import urllib2
+import base64
 import json
 
 class restlib2(urllib2.Request):
@@ -24,19 +25,30 @@ class restlib2(urllib2.Request):
 class RelaisClient(object):
 
     host = ''
+    username=None
+    password=None
 
     get = 'GET'
     set = 'POST'
     reset = 'DELETE'
 
-    def __init__(self, host, port=80):
-        self.host = "http://%s:%s" % (host, port)
+    def __init__(self, host, port=80, protocol='https', username=None, password=None):
+        self.host = "%s://%s:%s" % (protocol, host, port)
+        self.username = username
+        self.password = password
 
     def sendCommand(self, path, type ):
 
         try:
             req = restlib2( self.host+path, type )
+            
+            if self.username and self.password:
+                base64string = base64.encodestring('%s:%s' % (self.username, self.password))[:-1]
+                authheader = "Basic %s" % base64string
+                req.add_header("Authorization", authheader)
+
             f = urllib2.urlopen( req )
+
         except ValueError:
             raise Exception('Unable to fulfill request')
 
@@ -50,32 +62,32 @@ class RelaisClient(object):
         if not value:
             return self.resetPort( port )
 
-        return self.sendCommand( "/ports/%d" % port, self.set )
+        return self.sendCommand( "/relais/%d" % port, self.set )
 
     def setPorts(self, value=1 ):
 
         if not value:
             return self.resetPorts()
 
-        return self.sendCommand("/ports", self.set )
+        return self.sendCommand("/relais", self.set )
 
 
     def resetPort(self, port):
-        return self.sendCommand( '/ports/%d' % port, self.reset )
+        return self.sendCommand( '/relais/%d' % port, self.reset )
 
     def resetPorts(self):
-        return self.sendCommand( '/ports', self.reset )
+        return self.sendCommand( '/relais', self.reset )
 
 
     def getPort(self, port):
-        return self.sendCommand( '/ports/%d' % port, self.get )
+        return self.sendCommand( '/relais/%d' % port, self.get )
 
 
     def getPorts(self):
-        return self.sendCommand( '/ports', self.get )
+        return self.sendCommand( '/relais', self.get )
 
 
 if __name__ == '__main__':
 
-    rc = RelaisClient(host='localhost', port=5000)
-    print rc.getPorts()
+    rc = RelaisClient(host='10.1.20.10', port=5000, protocol='http', username='john', password='doe2')
+    rc.resetPort(3)
