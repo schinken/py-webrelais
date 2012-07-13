@@ -22,6 +22,10 @@ If no number is given, it will return/set/reset all relais
 * flask
 * pyparallel
 
+## Troubleshooting
+
+If you see some parallel port "permission denied" error messages, check that flask is NOT in debug mode (app.debug=True)
+
 ## Installation
 
     sudo apt-get install python-parallel python-flask
