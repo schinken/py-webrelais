@@ -70,5 +70,17 @@ class Parport(object):
         self.data = 0x00
         self.setPort()
 
+    def setMask(self, mask):
+
+        for pin, value in enumerate(mask):
+            if value is True:
+                self.data |= ( 0x01 << pin )
+            elif value is False:
+                self.data &= ~( 0x01 << pin )
+
+        self.setPort()
+
+
     def setPort(self):
         self.conn.setData( self.data )
+        pass
