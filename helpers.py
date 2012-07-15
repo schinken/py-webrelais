@@ -1,6 +1,8 @@
-from flask import request, make_response, jsonify
+from flask import request, Response, make_response, jsonify
 from acl import port_permissions
 from functools import wraps
+
+num_relais = 8
 
 def auth_required():
 
@@ -10,29 +12,35 @@ def auth_required():
 
     return resp
 
-def check_permissions(fn):
-    @wraps(fn)
-    def decorator(*args, **kwargs):
+def check_permission( relais ):
 
-        if not 'port' in kwargs:
-            return fn(*args, **kwargs)
+    if not relais in port_permissions:
+        return True
+    
+    auth = request.authorization
+    if not auth:
+        return False
 
-        port = kwargs['port']
-        auth = request.authorization
+    for cred in port_permissions[relais]:
+        if cred['user'] == auth.username and cred['pass'] == auth.password:
+            if ('host' in cred and cred['host'] == request.remote_addr) or 'host' not in cred:
+                return True
 
-        # check if there are special port credentials, and if
-        # validate them
-        if not port in port_permissions:
-            return fn(*args, **kwargs)
+    return False
 
-        for cred in port_permissions[port]:
-            if auth and cred['user'] == auth.username and cred['pass'] == auth.password:
-                if ('host' in cred and cred['host'] == request.remote_addr) or 'host' not in cred:
-                    return fn(*args, **kwargs)
-        
-        return auth_required()
+def get_relais_mask( relais=None, state=None ):
 
-    return decorator
+    preset = [ None for i in range(num_relais ) ]
+
+    if relais is not None:
+        if check_permission(relais):
+            preset[relais]=state
+    else:
+        for relais,v in enumerate(preset):
+            if check_permission(relais):
+                preset[relais]=state
+
+    return preset
 
 def format_output( data ):
 
@@ -52,7 +60,11 @@ def output_handler(fn):
     @wraps(fn)
     def decorator(*args, **kwargs):
         try:
-            return format_output( fn(*args, **kwargs) )
+            result = fn(*args, **kwargs)
+            if isinstance(result, Response):
+                return result
+
+            return format_output( result )
         except Exception:
             return Exception.message, 404
 
