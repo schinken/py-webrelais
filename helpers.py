@@ -45,7 +45,7 @@ def format_output( data ):
         if type(data) != list:
             data = [data]
 
-        return ''.join([ '1' if d is not None else '0' for d in data ])
+        return ''.join([ '1' if d is not False else '0' for d in data ])
         
         
 def output_handler(fn):
