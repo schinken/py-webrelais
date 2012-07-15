@@ -10,9 +10,9 @@ Its developed explicitly for Linux, but should run on Windows, too (not tested)
 
 * GET / Shows a page to control the relais card
 
-* POST /ports/[0-7]? Set a relais
-* GET /ports/[0-7]? Get the state of a specific relais
-* DELETE /ports/[0-7]? Set relais to off
+* POST /relais/[0-7]? Set a relais
+* GET /relais/[0-7]? Get the state of a specific relais
+* DELETE /relais/[0-7]? Set relais to off
 
 If no number is given, it will return/set/reset all relais
 
