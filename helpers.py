@@ -6,6 +6,8 @@ import syslog
 num_relais = 8
 enable_logging = True
 
+syslog.openlog(ident='webrelais')
+
 def log(msg):
 
     if enable_logging:
