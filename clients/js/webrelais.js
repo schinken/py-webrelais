@@ -62,11 +62,12 @@ Client.prototype.send_command = function( path, type, callback ) {
     console.log(options);
 
     // Set up the request
+    var client = this;
     var post_req = this.http_client.request(options, function(res) {
         res.setEncoding('utf8');
         res.on('end', function () {
             console.log("Emit event");
-            this.emit('command_sent');
+            client.emit('command_sent');
         });
     });
 
