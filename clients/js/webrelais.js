@@ -63,7 +63,7 @@ Client.prototype.send_command = function( path, type, callback ) {
 
     // Set up the request
     var client = this;
-    var post_req = this.http_client.request(options, function(res) {
+    var req = this.http_client.request(options, function(res) {
         res.setEncoding('utf8');
         res.on('end', function () {
             console.log("Emit event");
@@ -71,8 +71,7 @@ Client.prototype.send_command = function( path, type, callback ) {
         });
     });
 
-    // post the data
-    post_req.end();
+    req.end();
 };
 
 Client.prototype.set_port = function( port, value, callback ) {
