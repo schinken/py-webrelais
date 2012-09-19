@@ -1,26 +1,34 @@
 
 var  util = require('util')
-    ,events = require('events');
+    ,events = require('events')
+    ,https = require('https')
+    ,http = require('http');
 
 
 var  RESET  = 'DELETE'
     ,GET    = 'GET'
     ,SET    = 'POST';
 
-var Client = function( url ) {
+var Client = function( url, port ) {
     
     events.EventEmitter.call(this);
 
     var client = this;
     
+    this.http_client = http;
     this.url = url;
-    this.username = '';
-    this.password = '';
+    this.username = false;
+    this.password = false;
 
-    if( url.indexOf('https://') !== -1 ) {
-        this.port = 443;    
+    if( port ) {
+        this.port = port;    
     } else {
-        this.port = 80;    
+        if( url.indexOf('https://') !== -1 ) {
+            this.port = 443;
+            this.http_client = https;
+        } else {
+            this.port = 80;    
+        }
     }
 
 };
@@ -32,8 +40,38 @@ Client.prototype.authenticate = function( username, password ) {
     this.password = password;
 };
 
+Client.prototype.needs_auth = function() {
+    return (this.username && this.password);
+};
+
 Client.prototype.send_command = function( path, type, callback ) {
-    
+
+    this.once('command_sent', callback);
+
+    var options = {
+        host: this.url,
+        port: this.port,
+        path: path,
+        method: type,
+    };
+
+    if( this.needs_auth() ) {
+        options['auth'] = this.username + ":" + this.password;
+    }
+
+    console.log(options);
+
+    // Set up the request
+    var post_req = this.http_client.request(options, function(res) {
+        res.setEncoding('utf8');
+        res.on('end', function () {
+            console.log("Emit event");
+            this.emit('command_sent');
+        });
+    });
+
+    // post the data
+    post_req.end();
 };
 
 Client.prototype.set_port = function( port, value, callback ) {
@@ -43,7 +81,6 @@ Client.prototype.set_port = function( port, value, callback ) {
         return;
     }
 
-    this.once('set_port', callback);
     this.send_command( '/relais/' + port, SET, callback );
 };
 
@@ -55,7 +92,6 @@ Client.prototype.set_ports = function( value, callback ) {
         return;
     }  
 
-    this.once('set_ports', callback);
     this.send_command( '/relais', SET, callback );
 };
 
