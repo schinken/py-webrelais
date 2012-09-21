@@ -9,26 +9,20 @@ var  RESET  = 'DELETE'
     ,GET    = 'GET'
     ,SET    = 'POST';
 
-var Client = function( url, port ) {
+var Client = function( host, port ) {
     
     events.EventEmitter.call(this);
 
     var client = this;
     
     this.http_client = http;
-    this.url = url;
+    this.host = host;
+    this.port = port;
     this.username = false;
     this.password = false;
 
-    if( port ) {
-        this.port = port;    
-    } else {
-        if( url.indexOf('https://') !== -1 ) {
-            this.port = 443;
-            this.http_client = https;
-        } else {
-            this.port = 80;    
-        }
+    if( port == 443 ) {
+        this.http_client = https;
     }
 
 };
@@ -49,7 +43,7 @@ Client.prototype.send_command = function( path, type, callback ) {
     this.once('command_sent', callback);
 
     var options = {
-        host: this.url,
+        host: this.host,
         port: this.port,
         path: path,
         method: type,
@@ -58,8 +52,6 @@ Client.prototype.send_command = function( path, type, callback ) {
     if( this.needs_auth() ) {
         options['auth'] = this.username + ":" + this.password;
     }
-
-    console.log(options);
 
     // Set up the request
     var client = this;
