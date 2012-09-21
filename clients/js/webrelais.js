@@ -2,29 +2,19 @@
 var  util = require('util')
     ,events = require('events')
     ,https = require('https')
-    ,http = require('http');
+    ,http = require('http')
+    ,url = require('url');
 
 
 var  RESET  = 'DELETE'
     ,GET    = 'GET'
     ,SET    = 'POST';
 
-var Client = function( host, port ) {
-    
+var Client = function( baseurl ) {
     events.EventEmitter.call(this);
-
-    var client = this;
-    
-    this.http_client = http;
-    this.host = host;
-    this.port = port;
+    this.baseurl = baseurl;
     this.username = false;
     this.password = false;
-
-    if( port == 443 ) {
-        this.http_client = https;
-    }
-
 };
 
 util.inherits(Client, events.EventEmitter);
@@ -41,21 +31,17 @@ Client.prototype.needs_auth = function() {
 Client.prototype.send_command = function( path, type, callback ) {
 
     this.once('command_sent', callback);
-
-    var options = {
-        host: this.host,
-        port: this.port,
-        path: path,
-        method: type,
-    };
-
+    var options     = url.parse(this.baseurl + path);
+    options.method  = type;
+    options.headers = {'Content-length':0};
     if( this.needs_auth() ) {
         options['auth'] = this.username + ":" + this.password;
     }
+    var http_s = options.protocol=='https:' ? https : http;
 
     // Set up the request
     var client = this;
-    var req = this.http_client.request(options, function(res) {
+    var req = http_s.request(options, function(res) {
         res.setEncoding('utf8');
         res.on('end', function () {
             console.log("Emit event");
