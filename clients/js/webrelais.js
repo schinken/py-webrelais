@@ -1,4 +1,3 @@
-
 var  util   = require('util')
     ,https  = require('https')
     ,http   = require('http')
@@ -41,8 +40,23 @@ Client.prototype.send_command = function( path, type, callback ) {
     var client = this;
     var req = http_s.request(options, function(res) {
         res.setEncoding('utf8');
+        var resString = '';
+        res.on('data', function( data ){
+            resString += data;
+        });
         res.on('end', function () {
-            callback();
+            var reply;
+            var error;
+            try {
+                reply = JSON.parse(resString);
+                error = false;
+            }
+            catch( e ) {
+                error = true;
+                console.log( 'json parsing error: ' + e.message );
+            }
+            if(typeof(callback)=='function')
+                callback();
         });
     });
 
