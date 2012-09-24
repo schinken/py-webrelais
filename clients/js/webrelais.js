@@ -39,25 +39,31 @@ Client.prototype.send_command = function( path, type, callback ) {
     // Set up the request
     var client = this;
     var req = http_s.request(options, function(res) {
+        
         res.setEncoding('utf8');
+
         var resString = '';
         res.on('data', function( data ){
             resString += data;
         });
+
         res.on('end', function () {
-            var reply;
-            var error;
+
+            var reply = []
+               ,error = true;
+
             try {
                 reply = JSON.parse(resString);
                 error = false;
-            }
-            catch( e ) {
-                error = true;
+            } catch( e ) {
                 console.log( 'json parsing error: ' + e.message );
             }
-            if(typeof(callback)=='function')
-                callback();
+
+            if( typeof(callback) == 'function' ) {
+                callback(error, reply);
+            }
         });
+
     });
 
     req.end();
