@@ -84,7 +84,11 @@ class RelaisClient(object):
 
 
     def getPorts(self):
-        return self.sendCommand( '/relais', self.get )
+        tmp = self.sendCommand( '/relais', self.get )
+        if 'response' in tmp:
+            return tmp['response']
+        else:
+            return []
 
 
 if __name__ == '__main__':
