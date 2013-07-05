@@ -3,7 +3,6 @@ from acl import port_permissions
 from functools import wraps
 import syslog
 
-num_relais = 8
 enable_logging = True
 
 syslog.openlog('webrelais')
@@ -47,7 +46,7 @@ def check_permission( relais, state ):
 
     return False
 
-def get_relais_mask( relais=None, state=None ):
+def get_relais_mask( relais=None, state=None, num_relais = 8 ):
 
     preset = [ None for i in range(num_relais ) ]
 
