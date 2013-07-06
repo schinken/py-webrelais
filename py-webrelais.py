@@ -1,11 +1,21 @@
 __author__ = 'schinken'
 
-from helpers import *
-from parport import Parport
+import helpers
+
 from flask import Flask, render_template
+from relais import SainSmart, Relais, RelaisProxy
+from settings import relais
 
 app = Flask(__name__)
-pp = Parport()
+
+relais_proxy = RelaisProxy()
+
+for entry in relais:
+    print entry
+    sainsmart = SainSmart(entry['serial'])
+    wrapper = Relais(sainsmart)
+    relais_proxy.add_relais(entry['start'], entry['relais'], wrapper)
+
 
 @app.route("/")
 def page_main():
@@ -14,36 +24,35 @@ def page_main():
 
 @app.route("/relais", methods=["GET"])
 @app.route("/relais/<int:relais>", methods=["GET"])
-@output_handler
-def get_relais( relais=None ):
-    return pp.getPin( relais )
+@helpers.output_handler
+def get_relais(relais=None):
 
+    if relais:
+        return relais_proxy.get_pin(relais)
+    else:
+        return relais_proxy.get_pins()
 
-@app.route("/relais", methods=["POST"])
 @app.route("/relais/<int:relais>", methods=["POST"])
-@output_handler
-def set_relais( relais=None ):
+@helpers.output_handler
+def set_relais(relais):
 
-    mask = get_relais_mask(relais, True)
-    if all(x is None for x in mask):
-        return auth_required()
+    if helpers.check_permission(relais):
+        relais_proxy.set_pin(relais, True)
+    else:
+        return helpers.auth_required()
 
-    pp.setMask( mask )
     return True
 
-
-@app.route("/relais", methods=["DELETE"])
 @app.route("/relais/<int:relais>", methods=["DELETE"])
-@output_handler
-def reset_relais( relais=None ):
+@helpers.output_handler
+def reset_relais(relais):
 
-    mask = get_relais_mask(relais, False)
-    if all(x is None for x in mask):
-        return auth_required()
+    if helpers.check_permission(relais):
+        relais_proxy.set_pin(relais, False)
+    else:
+        return helpers.auth_required()
 
-    pp.setMask( mask )
     return True
-
 
 if __name__ == '__main__':
     app.run()
