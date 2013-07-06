@@ -10,7 +10,7 @@ port_permissions[2] = [door_credentials, user_credentials]
 port_permissions[3] = [user_credentials]
 
 
-relais = [
+relais_cards = [
     {'serial': 'A702FJ36', 'start': 0, 'relais': 8},
     {'serial': 'A702FIL4', 'start': 8, 'relais': 8},
 ]
