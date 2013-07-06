@@ -10,7 +10,6 @@ app = Flask(__name__)
 relays_proxy = RelaysProxy()
 
 for entry in relay_cards:
-    print entry
     sainsmart = SainSmart(entry['serial'])
     wrapper = Relay(sainsmart)
     relays_proxy.add_relay(entry['start'], entry['relays'], wrapper)
