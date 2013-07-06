@@ -7,76 +7,50 @@
 
             var $template = $('<li class="relais"><span class="status"></span><span class="alias">0</span></li>');
 
-            var aliases = ['door open', 'door close', 'door buzzer', 'exit-light white', 'exit-light red', 'alarmlight', 'heater'];
-
             $(function() {
 
+                var relais_status = {};
+
                 function update_relais() {
-                    $.get('/relais', function(ports) {
-                        $.each( ports.response, function(k,v) {
-                            setRelais( k, v );
+                    $.get('/relais', function(data) {
+                        $.each(data.payload, function(k,v) {
+                            relais_status[v.id] = v.status;
+                            set_relais(v);
                         });
-                            // setRelais( port, ports[ port ] );
                     })
                 }
 
-                function getRelaisStatus( port ) {
+                function toggle_relais(relais) {
 
-                    var $relais = $('#relais-' + port);
-
-                    if( !$relais.length ) {
-                        return null;
-                    }
-
-                    return $relais.hasClass('relais-on');
-                }
-
-                function toggleRelais( port ) {
-
-                    var status = getRelaisStatus( port );
-
-                    if( status ) {
-                        method = 'DELETE';
-                    } else {
-                        method = 'POST';
-                    }
-
-                    $.ajax('/relais/'+port, {
+                    $.ajax('/relais/'+relais, {
                         complete: function() {
                             update_relais();
-
                         },
-                        type: method
+                        type: (relais_status[relais])? 'DELETE' : 'POST'
                     });
                 }
 
-                function setRelais( port, value ) {
+                function set_relais(relais) {
 
-                    var name = 'relais-' + port;
+                    var name = 'relais-' + relais.id;
                     var $resolve = $('#'+name);
 
-                    if( aliases[port] ) {
-                        alias = aliases[port];
-                    } else {
-                        alias = 'Relais '+port;
-                    }
+                    if(!$resolve.length) {
 
-                    if( !$resolve.length ) {
+                        var $resolve = $template.clone().attr('id', name);
 
-                        var $resolve = $template.clone().attr( 'id', name );
-
-                        $('.alias', $resolve).text( alias );
-                        $('#relais').append( $resolve );
+                        $('.alias', $resolve).text(relais.name);
+                        $('#relais').append($resolve);
 
                         $resolve.bind('click', function() {
-                            toggleRelais( port );
+                            toggle_relais(relais.id);
                         });
 
                     }
 
                     $resolve.removeClass('relais-on relais-off');
 
-                    if( value === true ) {
+                    if(relais.status === true) {
                         $resolve.addClass('relais-on');
                     } else {
                         $resolve.addClass('relais-off');

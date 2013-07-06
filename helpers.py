@@ -1,6 +1,5 @@
 from flask import request, Response, make_response, jsonify
-from acl import port_permissions
-from functools import wraps
+from settings import port_permissions, relais_names
 import syslog
 
 enable_logging = True
@@ -25,51 +24,30 @@ def auth_required():
 
     return resp
 
-def check_permission(relais, state):
+def check_permission(relais):
 
     if not relais in port_permissions:
-        log( "Switching on Relais %d to %r" % (relais, state) )
         return True
     
     auth = request.authorization
     if not auth:
-        log("Relais %d needs permission. Not given." % (relais))
         return False
 
     for cred in port_permissions[relais]:
         if cred['user'] == auth.username and cred['pass'] == auth.password:
-            log("Switching on Relais %d to %r (user=%s)" % (relais, state, auth.username))
             return True
-
-    log("Relais %d needs permission. Credential check failed (user=%s)" % (relais, auth.username))
 
     return False
 
-def format_output(data):
+def relais_result(pin, status):
 
-    format = request.args.get('format', 'json')
+    name = 'Pin #'+str(pin)
+    if pin in relais_names:
+        name = relais_names[pin]
 
-    if format == 'json':
-        return jsonify(response=data)
-    elif format == 'raw':
+    auth = False
+    if pin in port_permissions:
+        auth = True
 
-        if type(data) != list:
-            data = [data]
-
-        return ''.join(['1' if d is not False else '0' for d in data])
-        
-        
-def output_handler(fn):
-    @wraps(fn)
-    def decorator(*args, **kwargs):
-        try:
-            result = fn(*args, **kwargs)
-            if isinstance(result, Response):
-                return result
-
-            return format_output(result)
-        except Exception:
-            return Exception.message, 404
-
-    return decorator
+    return {'id': pin, 'name': name, 'status': status, 'needs_auth': auth}
 

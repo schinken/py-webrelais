@@ -14,3 +14,14 @@ relais_cards = [
     {'serial': 'A702FJ36', 'start': 0, 'relais': 8},
     {'serial': 'A702FIL4', 'start': 8, 'relais': 8},
 ]
+
+relais_names = {
+    0: 'Door open',
+    1: 'Door close',
+    2: 'Door buzzer',
+    3: 'Exitlight white',
+    4: 'Exitlight red',
+    5: 'Alarmlight',
+    6: 'Heater'
+}
+

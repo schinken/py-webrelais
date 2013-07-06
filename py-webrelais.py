@@ -1,10 +1,9 @@
 __author__ = 'schinken'
 
-import helpers
-
-from flask import Flask, render_template
+from helpers import check_permission, auth_required, relais_result
+from flask import Flask, render_template, jsonify
 from relais import SainSmart, Relais, RelaisProxy
-from settings import relais
+from settings import relais_cards
 
 app = Flask(__name__)
 
@@ -16,7 +15,6 @@ for entry in relais_cards:
     wrapper = Relais(sainsmart)
     relais_proxy.add_relais(entry['start'], entry['relais'], wrapper)
 
-
 @app.route("/")
 def page_main():
     return render_template('index.html')
@@ -24,35 +22,36 @@ def page_main():
 
 @app.route("/relais", methods=["GET"])
 @app.route("/relais/<int:relais>", methods=["GET"])
-@helpers.output_handler
 def get_relais(relais=None):
 
-    if relais:
-        return relais_proxy.get_pin(relais)
+    if relais is None:
+        response = []
+        for pin, status in enumerate(relais_proxy.get_pins()):
+            response.append(relais_result(pin, status))
     else:
-        return relais_proxy.get_pins()
+        response = relais_result(relais, relais_proxy.get_pin(relais))
+
+    return jsonify(payload=response)
 
 @app.route("/relais/<int:relais>", methods=["POST"])
-@helpers.output_handler
 def set_relais(relais):
 
-    if helpers.check_permission(relais):
+    if check_permission(relais):
         relais_proxy.set_pin(relais, True)
     else:
-        return helpers.auth_required()
+        return auth_required()
 
-    return True
+    return jsonify(payload=relais_result(relais, True))
 
 @app.route("/relais/<int:relais>", methods=["DELETE"])
-@helpers.output_handler
 def reset_relais(relais):
 
-    if helpers.check_permission(relais):
+    if check_permission(relais):
         relais_proxy.set_pin(relais, False)
     else:
-        return helpers.auth_required()
+        return auth_required()
 
-    return True
+    return jsonify(payload=relais_result(relais, False))
 
 if __name__ == '__main__':
     app.run()
