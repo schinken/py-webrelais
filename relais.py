@@ -54,19 +54,37 @@ class Relais:
         self.state[pin] = not self.state[pin]
         self._update()
 
+class RelaisProxy:
 
-if __name__ == '__main__':
-    
-    import time
+    relais = []
+    pin_to_relais = {}
 
-    sainsmart_usb0 = SainSmart('A702FJ36')
-    sainsmart_usb1 = SainSmart('A702FIL4')
+    def add_relais(self, offset, num_relais, relais):
+        cur_offset = len(self.pin_to_relais)
 
-    relais0 = Relais(sainsmart_usb0)
-    relais1 = Relais(sainsmart_usb1)
+        for pin in xrange(offset, offset+num_relais):
+            self.pin_to_relais[pin] = (relais, pin-cur_offset)
 
-    for z in xrange(2):
-        for n in xrange(8):
-            relais0.toggle_pin(n)
-            relais1.toggle_pin(n)
-            time.sleep(0.1)
+        self.relais.append(relais)
+
+    def set_pin(self, pin, value):
+        relais, pin = self.pin_to_relais[pin]
+        relais.set_pin(pin, value)
+
+    def get_pin(self, pin):
+        relais, pin = self.pin_to_relais[pin]
+        return relais.get_pin(pin)
+
+    def get_pins(self):
+        result = []
+        for relais in self.relais:
+            result = result + relais.get_pins()
+
+        return result
+
+    def toggle_pin(self, pin):
+        relais, pin = self.pin_to_relais[pin]
+        relais.toggle_pin(pin)
+
+    def num_relais(self):
+        return len(self.pin_to_relais)
