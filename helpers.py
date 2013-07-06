@@ -38,9 +38,8 @@ def check_permission(relais, state):
 
     for cred in port_permissions[relais]:
         if cred['user'] == auth.username and cred['pass'] == auth.password:
-            if ('host' in cred and cred['host'] == request.remote_addr) or 'host' not in cred:
-                log("Switching on Relais %d to %r (user=%s)" % (relais, state, auth.username))
-                return True
+            log("Switching on Relais %d to %r (user=%s)" % (relais, state, auth.username))
+            return True
 
     log("Relais %d needs permission. Credential check failed (user=%s)" % (relais, auth.username))
 
