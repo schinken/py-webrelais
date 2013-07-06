@@ -1,19 +1,19 @@
 __author__ = 'schinken'
 
-from helpers import check_permission, auth_required, relais_result
+from helpers import check_permission, auth_required, relay_result
 from flask import Flask, render_template, jsonify
-from relais import SainSmart, Relais, RelaisProxy
-from settings import relais_cards
+from relays import SainSmart, Relay, RelaysProxy
+from settings import relay_cards
 
 app = Flask(__name__)
 
-relais_proxy = RelaisProxy()
+relays_proxy = RelaysProxy()
 
-for entry in relais_cards:
+for entry in relay_cards:
     print entry
     sainsmart = SainSmart(entry['serial'])
-    wrapper = Relais(sainsmart)
-    relais_proxy.add_relais(entry['start'], entry['relais'], wrapper)
+    wrapper = Relay(sainsmart)
+    relays_proxy.add_relay(entry['start'], entry['relays'], wrapper)
 
 @app.route("/")
 def page_main():
@@ -21,37 +21,37 @@ def page_main():
 
 
 @app.route("/relais", methods=["GET"])
-@app.route("/relais/<int:relais>", methods=["GET"])
-def get_relais(relais=None):
+@app.route("/relais/<int:relay>", methods=["GET"])
+def get_relais(relay=None):
 
-    if relais is None:
+    if relay is None:
         response = []
-        for pin, status in enumerate(relais_proxy.get_pins()):
-            response.append(relais_result(pin, status))
+        for relay, status in enumerate(relays_proxy.get_relays()):
+            response.append(relay_result(relay, status))
     else:
-        response = relais_result(relais, relais_proxy.get_pin(relais))
+        response = relay_result(relay, relais_proxy.get_relay(relay))
 
     return jsonify(payload=response)
 
-@app.route("/relais/<int:relais>", methods=["POST"])
-def set_relais(relais):
+@app.route("/relais/<int:relay>", methods=["POST"])
+def set_relais(relay):
 
-    if check_permission(relais):
-        relais_proxy.set_pin(relais, True)
+    if check_permission(relay):
+        relays_proxy.set_relay(relay, True)
     else:
         return auth_required()
 
-    return jsonify(payload=relais_result(relais, True))
+    return jsonify(payload=relay_result(relay, True))
 
-@app.route("/relais/<int:relais>", methods=["DELETE"])
-def reset_relais(relais):
+@app.route("/relais/<int:relay>", methods=["DELETE"])
+def reset_relais(relay):
 
-    if check_permission(relais):
-        relais_proxy.set_pin(relais, False)
+    if check_permission(relay):
+        relays_proxy.set_relay(relay, False)
     else:
         return auth_required()
 
-    return jsonify(payload=relais_result(relais, False))
+    return jsonify(payload=relay_result(relay, False))
 
 if __name__ == '__main__':
     app.run()

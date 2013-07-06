@@ -18,7 +18,7 @@ class ParPort:
     def update(self, byte):
         self.conn.setData(byte)
 
-class Relais:
+class Relay:
 
     def __init__(self, delegate):
         self.delegate = delegate
@@ -36,55 +36,55 @@ class Relais:
 
         self.delegate.update(result)
 
-    def set_pin(self, pin, value):
-        self.state[pin] = value
+    def set_relay(self, relay, value):
+        self.state[relay] = value
         self._update()
 
-    def set_pins(self, value):
+    def set_relays(self, value):
         self.state = [value]*8
         self._update()
 
-    def get_pin(self, pin):
-        return self.state[pin]
+    def get_relay(self, relay):
+        return self.state[relay]
 
-    def get_pins(self):
+    def get_relays(self):
         return self.state
 
-    def toggle_pin(self, pin):
-        self.state[pin] = not self.state[pin]
+    def toggle_relay(self, relay):
+        self.state[relay] = not self.state[relay]
         self._update()
 
-class RelaisProxy:
+class RelaysProxy:
 
     relais = []
     pin_to_relais = {}
 
-    def add_relais(self, offset, num_relais, relais):
+    def add_relay(self, offset, num_relais, relais):
         cur_offset = len(self.pin_to_relais)
 
-        for pin in xrange(offset, offset+num_relais):
-            self.pin_to_relais[pin] = (relais, pin-cur_offset)
+        for relay in xrange(offset, offset+num_relais):
+            self.pin_to_relais[relay] = (relais, relay-cur_offset)
 
         self.relais.append(relais)
 
-    def set_pin(self, pin, value):
-        relais, pin = self.pin_to_relais[pin]
-        relais.set_pin(pin, value)
+    def set_relay(self, relay, value):
+        relais, id = self.pin_to_relais[relay]
+        relais.set_relay(id, value)
 
-    def get_pin(self, pin):
-        relais, pin = self.pin_to_relais[pin]
-        return relais.get_pin(pin)
+    def get_relay(self, relay):
+        relais, id = self.pin_to_relais[relay]
+        return relais.get_relay(id)
 
-    def get_pins(self):
+    def get_relays(self):
         result = []
         for relais in self.relais:
-            result = result + relais.get_pins()
+            result = result + relais.get_relays()
 
         return result
 
-    def toggle_pin(self, pin):
-        relais, pin = self.pin_to_relais[pin]
-        relais.toggle_pin(pin)
+    def toggle_relay(self, relay):
+        relais, id = self.pin_to_relais[relay]
+        relais.toggle_relay(id)
 
     def num_relais(self):
         return len(self.pin_to_relais)

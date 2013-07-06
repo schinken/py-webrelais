@@ -1,5 +1,5 @@
 from flask import request, Response, make_response, jsonify
-from settings import port_permissions, relais_names
+from settings import relay_permissions, relay_names
 import syslog
 
 enable_logging = True
@@ -20,34 +20,34 @@ def auth_required():
 
     resp = make_response("Not authenticated")
     resp.status_code = 401
-    resp.headers['WWW-Authenticate'] = 'Basic realm="Relais Access"'
+    resp.headers['WWW-Authenticate'] = 'Basic realm="Relays Access"'
 
     return resp
 
-def check_permission(relais):
+def check_permission(relay):
 
-    if not relais in port_permissions:
+    if not relay in relay_permissions:
         return True
     
     auth = request.authorization
     if not auth:
         return False
 
-    for cred in port_permissions[relais]:
+    for cred in relay_permissions[relay]:
         if cred['user'] == auth.username and cred['pass'] == auth.password:
             return True
 
     return False
 
-def relais_result(pin, status):
+def relay_result(relay, status):
 
-    name = 'Pin #'+str(pin)
-    if pin in relais_names:
-        name = relais_names[pin]
+    name = 'Relay #'+str(relay)
+    if relay in relay_names:
+        name = relay_names[relay]
 
     auth = False
-    if pin in port_permissions:
+    if relay in relay_permissions:
         auth = True
 
-    return {'id': pin, 'name': name, 'status': status, 'needs_auth': auth}
+    return {'id': relay, 'name': name, 'status': status, 'needs_auth': auth}
 
