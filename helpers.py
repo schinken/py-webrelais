@@ -25,7 +25,7 @@ def auth_required():
 
     return resp
 
-def check_permission( relais, state ):
+def check_permission(relais, state):
 
     if not relais in port_permissions:
         log( "Switching on Relais %d to %r" % (relais, state) )
@@ -33,45 +33,31 @@ def check_permission( relais, state ):
     
     auth = request.authorization
     if not auth:
-        log( "Relais %d needs permission. Not given." % (relais) )
+        log("Relais %d needs permission. Not given." % (relais))
         return False
 
     for cred in port_permissions[relais]:
         if cred['user'] == auth.username and cred['pass'] == auth.password:
             if ('host' in cred and cred['host'] == request.remote_addr) or 'host' not in cred:
-                log( "Switching on Relais %d to %r (user=%s)" % (relais, state, auth.username) )
+                log("Switching on Relais %d to %r (user=%s)" % (relais, state, auth.username))
                 return True
 
-    log( "Relais %d needs permission. Credential check failed (user=%s)" % (relais, auth.username) )
+    log("Relais %d needs permission. Credential check failed (user=%s)" % (relais, auth.username))
 
     return False
 
-def get_relais_mask( relais=None, state=None, num_relais = 8 ):
-
-    preset = [ None for i in range(num_relais ) ]
-
-    if relais is not None:
-        if check_permission(relais, state):
-            preset[relais]=state
-    else:
-        for relais,v in enumerate(preset):
-            if check_permission(relais, state):
-                preset[relais]=state
-
-    return preset
-
-def format_output( data ):
+def format_output(data):
 
     format = request.args.get('format', 'json')
 
     if format == 'json':
-        return jsonify( response=data )
+        return jsonify(response=data)
     elif format == 'raw':
 
         if type(data) != list:
             data = [data]
 
-        return ''.join([ '1' if d is not False else '0' for d in data ])
+        return ''.join(['1' if d is not False else '0' for d in data])
         
         
 def output_handler(fn):
@@ -82,7 +68,7 @@ def output_handler(fn):
             if isinstance(result, Response):
                 return result
 
-            return format_output( result )
+            return format_output(result)
         except Exception:
             return Exception.message, 404
 
