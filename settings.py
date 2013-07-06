@@ -11,6 +11,6 @@ port_permissions[3] = [user_credentials]
 
 
 relais = [
-    {'serial': 'A702FJ36', 'start': 0, 'end': 7,  'relais': 8},
-    {'serial': 'A702FJ36', 'start': 8, 'end': 15, 'relais': 8},
+    {'serial': 'A702FJ36', 'start': 0, 'relais': 8},
+    {'serial': 'A702FJ36', 'start': 8, 'relais': 8},
 ]
